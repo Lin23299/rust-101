@@ -91,21 +91,47 @@ impl NumberOrNothing {
 //@ 
 //@ Try making `number_or_default` from above an inherent method as well!
 
+impl NumberOrNothing {
+   fn number_or_default (self, default : i32){
+	match self {
+	    Nothing => default,
+	    Number(n) => n,
+	};
+    }
+}
 // With our refactored functions and methods, `main` now looks as follows:
 fn read_vec() -> Vec<i32> {
     vec![18,5,7,2,9,27]
 }
-pub fn main() {
-    let vec = read_vec();
-    let min = vec_min(vec);
-    min.print();                                                    /*@*/
-}
+
 // You will have to replace `part00` by `part01` in the `main` function in
 // `main.rs` to run this code.
 
 // **Exercise 01.1**: Write a function `vec_sum` that computes the sum of all values of a `Vec<i32>`.
 
+fn vec_sum (v: Vec<i32>) -> NumberOrNothing {
+    let mut sum = Nothing;
+    for e in v {
+	sum = Number (match sum {
+	    Nothing => e,
+	    Number(n) => n + e
+	});
+    }
+    sum
+}
+
 // **Exercise 01.2**: Write a function `vec_print` that takes a vector and prints all its elements.
 
+fn vec_print (v: Vec<i32>) {
+    for e in v {
+	println!("{}",e);
+    }
+}
 //@ [index](main.html) | [previous](part00.html) | [raw source](workspace/src/part01.rs) |
 //@ [next](part02.html)
+pub fn main() {
+    let vec = read_vec();
+    vec_print(vec);
+    //let sum = vec_sum(vec);
+    //sum.print();                                                    /*@*/
+}

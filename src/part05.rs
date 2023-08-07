@@ -59,7 +59,9 @@ impl BigInt {
     // 
     // *Hint*: You can use `pop` to remove the last element of a vector.
     pub fn from_vec(mut v: Vec<u64>) -> Self {
-        unimplemented!()
+	while v[v.len() -1] == 0{
+	    v.pop();
+	}
     }
 }
 
@@ -71,7 +73,7 @@ impl BigInt {
 //@ form of a shared reference, and returns a fully owned one.
 fn clone_demo() {
     let v = vec![0,1 << 16];
-    let b1 = BigInt::from_vec((&v).clone());
+    let b1 = BigInt::from_vec(v.clone());
     let b2 = BigInt::from_vec(v);
 }
 //@ Rust has special treatment for methods that borrow their `self` argument (like `clone`, or

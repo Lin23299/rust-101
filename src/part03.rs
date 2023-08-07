@@ -20,8 +20,8 @@ use std::io;
 //@ that we interact with for the rest of the function, so having its type available
 //@ (and visible!) is much more useful. Without knowing the return type of `Vec::new`,
 //@ specifying its type parameter doesn't tell us all that much.
-fn read_vec() -> Vec<i32> {
-    let mut vec: Vec<i32> = Vec::<i32>::new();
+fn read_vec() -> Vec<f32> {
+    let mut vec: Vec<f32> = Vec::<f32>::new();
     // The central handle to the standard input is made available by the function `io::stdin`.
     let stdin = io::stdin();
     println!("Enter a list of numbers, one per line. End with Ctrl-D (Linux) or Ctrl-Z (Windows).");
@@ -59,7 +59,7 @@ fn read_vec() -> Vec<i32> {
         //@ In this case, Rust *could* figure out automatically that we need an `i32` (because of
         //@ the return type of the function), but that's a bit too much magic for my taste. We are
         //@ being more explicit here: `parse::<i32>` is `parse` with its generic type set to `i32`.
-        match line.trim().parse::<i32>() {
+        match line.trim().parse::<f32>() {
             //@ `parse` returns again a `Result`, and this time we use a `match` to handle errors
             //@ (like, the user entering something that is not a number).
             //@ This is a common pattern in Rust: Operations that could go wrong will return
@@ -96,7 +96,7 @@ use part02::{SomethingOrNothing,Something,Nothing,vec_min};
 pub fn main() {
     let vec = read_vec();
     let min = vec_min(vec);                                         /*@*/
-    min.print();                                                    /*@*/
+    min.print2();                                                    /*@*/
 }
 
 // **Exercise 03.1**: The goal is to write a generic version of `SomethingOrNothing::print`.
@@ -113,17 +113,28 @@ pub fn main() {
 // 
 // *Hint*: There is a macro `print!` for printing without appending a newline.
 pub trait Print {
-    /* Add things here */
+    fn print2(self);/* Add things here */
 }
 impl Print for i32 {
-    /* Add things here */
+    fn print2(self){
+	println!("The number is :{}", self);
+    } /* Add things here */
 }
+
 impl<T: Print> SomethingOrNothing<T> {
     fn print2(self) {
-        unimplemented!()
+        match self{
+	    Nothing => println!("The number is: <nothing>"),
+	    Something(n) => n.print2(),
+	};
     }
 }
 
+impl Print for f32{
+    fn print2(self){
+	println!("The number is :{:.4}",self);
+    }
+}
 // **Exercise 03.2**: Building on exercise 02.2, implement all the things you need on `f32` to make
 // your program work with floating-point numbers.
 

@@ -20,8 +20,13 @@ impl BigInt {
         } else if self.data.len() > other.data.len() {
             other
         } else {
+	    let len = self.data.len();
+	    for n in 1..len{
+		if self.data[len-n] < other.data[len-n] {
+		    return true;
+		}
+	    }
             // **Exercise 06.1**: Fill in this code.
-            unimplemented!()
         }
     }
 }

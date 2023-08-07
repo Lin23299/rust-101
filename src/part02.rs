@@ -120,6 +120,11 @@ impl Minimum for i32 {
     }
 }
 
+impl Minimum for f32{
+    fn min(self, b:Self) -> Self{
+	if self < b { self } else {b}
+    }
+}
 // We again provide a `print` function.
 //@ This also shows that we can have multiple `impl` blocks for the same type (remember that
 //@ `NumberOrNothing` is just a type alias for `SomethingOrNothing<i32>`), and we can provide some
@@ -133,11 +138,23 @@ impl NumberOrNothing {
     }
 }
 
+impl SomethingOrNothing<f32> {
+    pub fn print(self) {
+        match self {
+            Nothing => println!("The number is: <nothing>"),
+            Something(n) => println!("The number is: {:.32}", n),
+        };
+    }
+}
+
+
+
 // Now we are ready to run our new code. Remember to change `main.rs` appropriately.
 //@ Rust figures out automatically that we want the `T` of `vec_min` to be `i32`, and
 //@ that `i32` implements `Minimum` and hence all is good.
-fn read_vec() -> Vec<i32> {
-    vec![18,5,7,3,9,27]
+fn read_vec() -> Vec<f32> {
+    vec![18.1,5.2,7.3,3.4,9.5,27.6]
+    //vec![18,5,7,3,9,27]
 }
 pub fn main() {
     let vec = read_vec();
