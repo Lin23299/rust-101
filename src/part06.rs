@@ -19,15 +19,19 @@ impl BigInt {
             self
         } else if self.data.len() > other.data.len() {
             other
-        } else {
-	    let len = self.data.len();
-	    for n in 1..len{
-		if self.data[len-n] < other.data[len-n] {
-		    return true;
-		}
-	    }
-            // **Exercise 06.1**: Fill in this code.
+        } else if self.data.len() == 0 {
+            self
+        } else  {
+            let mut index = self.data.len() -1;
+            let mut result: BigInt = other.clone();
+            while index > 0 {
+            if self.data[index] < other.data[index] { result = self.clone(); }
+            else if other.data[index] < self.data[index] {result = other.clone();}
+            else {index = index -1;}
+            } 
+            result
         }
+
     }
 }
 
@@ -40,7 +44,7 @@ fn vec_min(v: &Vec<BigInt>) -> Option<BigInt> {
         let e = e.clone();
         min = Some(match min {                                      /*@*/
             None => e,                                              /*@*/
-            Some(n) => e.min_try1(n)                                /*@*/
+            Some(n) => e.min_try1(n)                        /*@*/
         });                                                         /*@*/
     }
     min

@@ -62,6 +62,7 @@ impl BigInt {
 	while v[v.len() -1] == 0{
 	    v.pop();
 	}
+    BigInt { data:v }
     }
 }
 
