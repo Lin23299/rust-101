@@ -44,7 +44,7 @@ fn overflowing_add(a: u64, b: u64, carry: bool) -> (u64, bool) {
 
 // `overflow_add` is a sufficiently intricate function that a test case is justified.
 // This should also help you to check your solution of the exercise.
-/*#[test]*/
+#[test]
 fn test_overflowing_add() {
     assert_eq!(overflowing_add(10, 100, false), (110, false));
     assert_eq!(overflowing_add(10, 100, true), (111, false));
@@ -116,11 +116,43 @@ impl ops::Add<BigInt> for BigInt {
 impl<'a, 'b> ops::Add<&'a BigInt> for &'b BigInt {
     type Output = BigInt;
     fn add(self, rhs: &'a BigInt) -> Self::Output {
+        let max_len = cmp::max(self.data.len(), rhs.data.len());
+        let mut result_vec:Vec<u64> = Vec::with_capacity(max_len);
+        let mut carry = false; /* the current carry bit */
+        for i in 0..max_len {
+            let lhs_val = if i < self.data.len() { self.data[i] } else { 0 };
+            let rhs_val = if i < rhs.data.len() { rhs.data[i] } else { 0 };
+            // Compute next digit and carry. Then, store the digit for the result, and the carry
+            // for later.
+            //@ Notice how we can obtain names for the two components of the pair that
+            //@ `overflowing_add` returns.
+            let (sum, new_carry) = overflowing_add(lhs_val, rhs_val, carry);    /*@*/
+            result_vec.push(sum);                                               /*@*/
+            carry = new_carry;                                                  /*@*/
+        }
+        // **Exercise 08.2**: Handle the final `carry`, and return the sum.
+        if carry {                                                              /*@@*/
+            result_vec.push(1);                                                 /*@@*/
+        }                                                                       /*@@*/
+        BigInt { data: result_vec }
         // **Exercise 08.3**: Implement this function.
-        unimplemented!()
+        
     }
 }
 
+impl<'a> ops::Add<&'a BigInt> for BigInt {
+    type Output = BigInt;
+    fn add(self, rhs: &'a BigInt) -> Self::Output {
+        &self + rhs
+    }
+}
+
+impl<'b> ops::Add< BigInt> for &'b BigInt {
+    type Output = BigInt;
+    fn add(self, rhs: BigInt) -> Self::Output {
+        self + &rhs
+    }
+}
 // **Exercise 08.4**: Implement the two missing combinations of arguments for `Add`. You should not
 // have to duplicate the implementation.
 
@@ -138,7 +170,7 @@ impl<'a, 'b> ops::Add<&'a BigInt> for &'b BigInt {
 mod tests {
     use part05::BigInt;
 
-    /*#[test]*/
+    #[test]
     fn test_add() {
         let b1 = BigInt::new(1 << 32);
         let b2 = BigInt::from_vec(vec![0, 1]);

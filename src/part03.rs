@@ -130,6 +130,7 @@ impl<T: Print> SomethingOrNothing<T> {
     }
 }
 
+
 impl Print for f32{
     fn print2(self){
 	println!("The number is :{:.4}",self);

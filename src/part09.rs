@@ -61,14 +61,6 @@ impl BigInt {
     }
 }
 
-// We are finally ready to iterate! Remember to edit `main.rs` to run this function.
-pub fn main() {
-    let b = BigInt::new(1 << 63) + BigInt::new(1 << 16) + BigInt::new(1 << 63);
-    for digit in b.iter() {
-        println!("{}", digit);
-    }
-}
-
 // Of course, we don't have to use `for` to apply the iterator. We can also explicitly call `next`.
 fn print_digits_v1(b: &BigInt) {
     let mut iter = b.iter();
@@ -97,10 +89,63 @@ fn print_digits_v2(b: &BigInt) {
 }
 
 // **Exercise 09.1**: Write a testcase for the iterator, making sure it yields the corrects numbers.
-// 
+#[test]
+fn test_iter() {
+    let b1 = BigInt::from_vec(vec![42, 0,22,14124]);
+    //let b2 = BigInt::from_vec(vec![0, 1]);
+
+    print_digits_v2(&b1);
+}
 // **Exercise 09.2**: Write a function `iter_ldf` that iterates over the digits with the
 // least-significant digits coming first. Write a testcase for it.
 
+pub struct IterLdf<'a> {
+    num: &'a BigInt,
+    idx: usize, // the index of the last number that was returned
+}
+
+impl<'a> Iterator for IterLdf<'a> {
+    // We choose the type of things that we iterate over to be the type of digits, i.e., `u64`.
+    type Item = u64;
+
+    fn next(&mut self) -> Option<u64> {
+        // First, check whether there's any more digits to return.
+        if self.idx == self.num.data.len() {
+            // We already returned all the digits, nothing to do.
+            None                                                    /*@*/
+        } else {
+            // Otherwise: Decrement, and return next digit.
+            self.idx = self.idx + 1;                                /*@*/
+            Some(self.num.data[self.idx -1])                           /*@*/
+        }
+    }
+}
+
+impl BigInt {
+
+    fn iter_ldf(&self) -> IterLdf {
+        IterLdf { num: self, idx: 0 }                    /*@*/
+    }
+}
+
+fn print_digits_ldf(b: &BigInt) {
+    let mut iter_ldf = b.iter_ldf();
+    //@ `while let` performs the given pattern matching on every round of the loop, and cancels the
+    //@ loop if the pattern doesn't match. There's also `if let`, which works similar, but of
+    //@ course without the loopy part.
+    while let Some(digit) = iter_ldf.next() {
+        println!("{}", digit)
+    }
+}
+
+#[test]
+fn test_iter_ldf() {
+    let b1 = BigInt::from_vec(vec![42, 0,22,14124]);
+    //let b2 = BigInt::from_vec(vec![0, 1]);
+
+    //print_digits_v2(&b1);
+    print_digits_ldf(&b1);
+}
 // ## Iterator invalidation and lifetimes
 //@ You may have been surprised that we had to explicitly annotate a lifetime when we wrote `Iter`.
 //@ Of course, with lifetimes being present at every reference in Rust, this is only consistent.
@@ -156,6 +201,16 @@ impl<'a> IntoIterator for &'a BigInt {
         self.iter()
     }
 }
+
+
+// We are finally ready to iterate! Remember to edit `main.rs` to run this function.
+pub fn main() {
+    let b = BigInt::new(1 << 63) + BigInt::new(1 << 16) + BigInt::new(1 << 63);
+    for digit in &b {
+        println!("{}", digit);
+    }
+}
+
 // With this in place, you can now replace `b.iter()` in `main` by `&b`. Go ahead and try it! <br/>
 //@ Wait, `&b`? Why that? Well, we implemented `IntoIterator` for `&BigInt`. If we are in a place
 //@ where `b` is already borrowed, we can just do `for digit in b`. If however, we own `b`, we have

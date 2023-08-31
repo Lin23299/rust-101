@@ -39,8 +39,26 @@ pub fn vec_min<T: Minimum>(v: &Vec<T>) -> Option<&T> {
 // exercise 06.1. You should *not* make any copies of `BigInt`!
 impl Minimum for BigInt {
     fn min<'a>(&'a self, other: &'a Self) -> &'a Self {
-        unimplemented!()
-    }
+        debug_assert!(self.test_invariant() && other.test_invariant());
+        // Now our assumption of having no trailing zeros comes in handy:
+        // If the lengths of the two numbers differ, we already know which is larger.
+        if self.data.len() < other.data.len() {
+            self
+        } else if self.data.len() > other.data.len() {
+            other
+        } else if self.data.len() == 0 {
+            self
+        } else  {
+            let mut index = self.data.len() -1;
+            //let mut result: BigInt = other.clone();
+            while index >= 0 {
+            if self.data[index] < other.data[index] { return self; }
+            else if other.data[index] < self.data[index] { return other;}
+            else {index = index -1;}
+            } 
+            self
+    }   
+}       
 }
 
 // ## Operator Overloading
@@ -107,7 +125,7 @@ fn compare_big_ints() {
 #[test]
 fn test_min() {
     let b1 = BigInt::new(1);
-    let b2 = BigInt::new(42);
+    let b2 = BigInt::new(4);
     let b3 = BigInt::from_vec(vec![0, 1]);
 
     assert!(*b1.min(&b2) == b1);                                    /*@*/
@@ -126,7 +144,9 @@ fn test_min() {
 
 // All formating is handled by [`std::fmt`](https://doc.rust-lang.org/std/fmt/index.html). I won't
 // explain all the details, and refer you to the documentation instead.
-use std::fmt;
+use std::{fmt, iter::OnceWith};
+
+use crate::part02::SomethingOrNothing;
 
 //@ In the case of `BigInt`, we'd like to just output our internal `data` array, so we
 //@ simply call the formating function of `Vec<u64>`.
@@ -135,19 +155,31 @@ impl fmt::Debug for BigInt {
         self.data.fmt(f)
     }
 }
+
+impl<T:fmt::Display> fmt::Display for SomethingOrNothing<T>{
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result{
+        match &self{
+            SomethingOrNothing::Nothing => write!(f,"It contains Nothing"),//println!("It contains Nothing"),
+	        SomethingOrNothing::Something(n)=> write!(f,"It contains {}", n)//println!("It contains",n)
+        }
+    }
+}
 //@ `Debug` implementations can be automatically generated using the `derive(Debug)` attribute.
 
 // Now we are ready to use `assert_eq!` to test `vec_min`.
-/*#[test]*/
+#[test]
 fn test_vec_min() {
     let b1 = BigInt::new(1);
-    let b2 = BigInt::new(42);
+    //let b2 = BigInt::new(42);
+    let b2 = BigInt::from_vec(vec![42, 0]);
     let b3 = BigInt::from_vec(vec![0, 1]);
 
     let v1 = vec![b2.clone(), b1.clone(), b3.clone()];
     let v2 = vec![b2.clone(), b3.clone()];
+    let v3: Vec<BigInt> = vec![];
     assert_eq!(vec_min(&v1), Some(&b1));                            /*@*/
-    assert_eq!(vec_min(&v2), Some(&b2));                            /*@*/
+    assert_eq!(vec_min(&v2), Some(&b2));
+    assert_eq!(vec_min(&v3), None);                            /*@*/
 }
 
 // **Exercise 07.1**: Add some more testcases. In particular, make sure you test the behavior of

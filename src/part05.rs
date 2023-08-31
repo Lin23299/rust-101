@@ -35,7 +35,14 @@ impl BigInt {
         if x == 0 {
             BigInt { data: vec![] }                                 /*@*/
         } else {
-            BigInt { data: vec![x] }                                /*@*/
+            //let mut v :Vec<u64>= vec![];
+            //let mut xx = x;
+            //while xx > 0
+            //{
+            //    v.push(xx%10);
+            //    xx = xx / 10;
+            //}
+            BigInt { data: vec![x]}                                /*@*/
         }
     }
 

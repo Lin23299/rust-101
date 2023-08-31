@@ -50,6 +50,7 @@ impl Action for PrintWithString {
 // Finally, this function takes a `BigInt` and a prefix, and prints the digits with the given prefix.
 //@ It does so by creating an instance of `PrintWithString`, giving it the prefix, and then passing
 //@ that to `act_v1`. Since `PrintWithString` implements `Action`, Rust now knows what to do.
+
 fn print_with_prefix_v1(b: &BigInt, prefix: String) {
     let my_action = PrintWithString { prefix: prefix };
     b.act_v1(my_action);
