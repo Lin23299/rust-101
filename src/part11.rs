@@ -39,18 +39,18 @@ struct CallbacksV1<F: FnMut(i32)> {
 //@ however, `Box<T>` is a *pointer* to a heap-allocated `T`. It is a lot like `std::unique_ptr` in
 //@ C++. In our current example, the important bit is that since it's a pointer, `T` can be
 //@ unsized, but `Box<T>` itself will always be sized. So we can put it in a `Vec`.
-pub struct Callbacks {
-    callbacks: Vec<Box<FnMut(i32)>>,
+pub struct Callbacks <T:Copy> {
+    callbacks: Vec<Box<FnMut(T)>>,
 }
 
-impl Callbacks {
+impl <T:Copy> Callbacks<T> {
     // Now we can provide some functions. The constructor should be straight-forward.
     pub fn new() -> Self {
         Callbacks { callbacks: Vec::new() }                         /*@*/
     }
 
     // Registration simply stores the callback.
-    pub fn register(&mut self, callback: Box<FnMut(i32)>) {
+    pub fn register(&mut self, callback: Box<FnMut(T)>) {
         self.callbacks.push(callback);
     }
 
@@ -67,19 +67,19 @@ impl Callbacks {
     //@ Here, we use the special lifetime `'static`, which is the lifetime of the entire program.
     //@ The same bound has been implicitly added in the version of `register` above, and in the
     //@ definition of `Callbacks`.
-    pub fn register_generic<F: FnMut(i32)+'static>(&mut self, callback: F) {
+    pub fn register_generic<F: FnMut(T)+'static>(&mut self, callback: F) {
         self.callbacks.push(Box::new(callback));                    /*@*/
     }
 
     // And here we call all the stored callbacks.
-    pub fn call(&mut self, val: i32) {
+    pub fn call(&mut self, val: T) {
         // Since they are of type `FnMut`, we need to mutably iterate.
         for callback in self.callbacks.iter_mut() {
             //@ Here, `callback` has type `&mut Box<FnMut(i32)>`. We can make use of the fact that
             //@ `Box` is a *smart pointer*: In particular, we can use it as if it were a normal
             //@ reference, and use `*` to get to its contents. Then we obtain a mutable reference
             //@ to these contents, because we call a `FnMut`.
-            (&mut *callback)(val);                                  /*@*/
+            (callback)(val);                                  /*@*/
             //@ Just like it is the case with normal references, this typically happens implicitly
             //@ with smart pointers, so we can also directly call the function.
             //@ Try removing the `&mut *`.
