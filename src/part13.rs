@@ -1,6 +1,7 @@
 // Rust-101, Part 13: Concurrency, Arc, Send
 // =========================================
 
+use part14::sort;
 use std::io::prelude::*;
 use std::{io, fs, thread};
 use std::sync::mpsc::{sync_channel, SyncSender, Receiver};
@@ -99,7 +100,11 @@ fn output_lines(options: Arc<Options>, in_channel: Receiver<String>) {
             // in a local vector...
             let mut data: Vec<String> = in_channel.iter().collect();
             // ...and implement the actual sorting later.
-            unimplemented!()
+	    sort(&mut data[..]);
+	    for line in data.iter(){
+		println!("{}",line);
+	    }
+            //unimplemented!()
         }
     }
 }

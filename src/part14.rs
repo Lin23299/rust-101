@@ -31,9 +31,14 @@ pub fn sort<T: PartialOrd>(data: &mut [T]) {
     /* Invariant: pivot is data[0]; everything with index (0,lpos) is <= pivot;
        [rpos,len) is >= pivot; lpos < rpos */
     loop {
+	if data[lpos] <= data[0] {lpos = lpos + 1;}
+	else if data[rpos -1] >= data[0] {rpos = rpos -1;}
+	else {data.swap(lpos, rpos -1); lpos = lpos +1; rpos = rpos -1;}
+
+	if lpos == rpos {break;}
         // **Exercise 14.1**: Complete this Quicksort loop. You can use `swap` on slices to swap
         // two elements. Write a test function for `sort`.
-        unimplemented!()
+        //unimplemented!()
     }
 
     // Once our cursors met, we need to put the pivot in the right place.
@@ -77,7 +82,7 @@ fn sort_array() {
     sort(&mut array_of_data);
 }
 
-// ## External Dependencies
+// ## External Dependencies 
 //@ This leaves us with just one more piece to complete rgrep: Taking arguments from the command-
 //@ line. We could now directly work on [`std::env::args`](https://doc.rust-
 //@ lang.org/stable/std/env/fn.args.html) to gain access to those arguments, and this would become
@@ -107,7 +112,7 @@ fn sort_array() {
 
 // I disabled the following module (using a rather bad hack), because it only compiles if `docopt`
 // is linked. Remove the attribute of the `rgrep` module to enable compilation.
-#[cfg(feature = "disabled")]
+//#[cfg(feature = "disabled")]
 pub mod rgrep {
     // Now that `docopt` is linked, we can first add it to the namespace with `extern crate` and
     // then import shorter names with `use`. We also import some other pieces that we will need.
